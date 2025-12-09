@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Iceman's Icecreams — Incident Response Walkthrough</title>
+    <style>
+        :root{--bg:#0f1724;--card:#0b1220;--muted:#9aa4b2;--accent:#60a5fa}
+        body {
+            font-family: Inter, Arial, sans-serif;
+            background: linear-gradient(180deg,#0b1220 0%, #071028 100%);
+            padding: 30px;
+            line-height: 1.6;
+            color: #e6eef6;
+        }
+        .container {
+            max-width: 980px;
+            margin: auto;
+            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            padding: 28px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+        h1, h2, h3 { color: #fff; }
+        .title { text-align: center; margin-bottom: 8px; }
+        .byline { text-align: center; color: var(--muted); margin-bottom: 22px; }
+        p, li { color: #dbe7f5; }
+        ul { margin-left: 1.2rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        table, th, td { border: 1px solid rgba(255,255,255,0.06); }
+        th, td { padding: 10px; text-align: left; }
+        th { background: rgba(255,255,255,0.03); color: #cfe6ff; }
+        blockquote { background: rgba(255,255,255,0.02); padding: 10px 14px; border-left: 4px solid rgba(96,165,250,0.25); margin: 12px 0; }
+        .footer { margin-top: 36px; text-align: center; font-size: 13px; color: var(--muted); }
+        code { background: rgba(255,255,255,0.02); padding: 2px 6px; border-radius: 6px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🚨 Iceman's Icecreams — Incident Response Walkthrough</h1>
+        <div class="byline"><strong>Written by: Aryan Giri</strong></div>
+
+        <!-- Inserted scenario content -->
+
+        <h2>🍦 <strong>Company: Iceman’s Icecreams</strong></h2>
+        <p>A cyberattack happens.<br>Attackers try to access the <strong>owner’s old high-school results</strong> stored in the company database.</p>
+        <p>Here is the <strong>full story of what happens step-by-step</strong>, with every SOC role involved.</p>
+
+        <hr>
+
+        <h2>🏢 <strong>1. Who Works Inside a SOC? (Your Characters)</strong></h2>
+        <p>Inside Iceman’s Icecreams SOC, we have:</p>
+
+        <h3>👨‍💻 <strong>L1 SOC Analyst</strong></h3>
+        <p>Monitors alerts and triage.</p>
+
+        <h3>🕵️‍♂️ <strong>L2 SOC Analyst</strong></h3>
+        <p>Investigates deeper, analyzes logs.</p>
+
+        <h3>🧠 <strong>L3 SOC Analyst / Detection Engineer</strong></h3>
+        <p>Builds detection rules, handles advanced cases.</p>
+
+        <h3>🚨 <strong>Incident Responder / CSIRT</strong></h3>
+        <p>Handles containment, remediation, recovery.</p>
+
+        <h3>🔍 <strong>Threat Intelligence Analyst</strong></h3>
+        <p>Checks attacker IPs, domains, and patterns with safe TI sources.</p>
+
+        <h3>🛠️ <strong>SOC Manager</strong></h3>
+        <p>Coordinates the whole team, communicates with leadership.</p>
+
+        <p><em>No one attacks anything — all actions are defensive.</em></p>
+
+        <hr>
+
+        <h2>🚨 <strong>2. The Attack Begins — What Triggers an Alert?</strong></h2>
+        <p>The attackers try <em>some method</em> to access the database. (We don’t describe any harmful method — just that “suspicious behavior” occurs.)</p>
+
+        <h4>Example safe triggers:</h4>
+        <ul>
+            <li>Unusual login attempts to the database admin account</li>
+            <li>Database queries coming from an unknown location</li>
+            <li>Many failed login attempts</li>
+            <li>Suspicious API requests</li>
+            <li>A user logs in at midnight from another country</li>
+        </ul>
+
+        <p>These alerts automatically appear in the SOC dashboard (SIEM).</p>
+
+        <hr>
+
+        <h2>🧊 <strong>3. L1 SOC Analyst — First to Notice</strong></h2>
+        <p>L1 sees alerts like:</p>
+        <ul>
+            <li>“Multiple failed login attempts from unknown IP”</li>
+            <li>“Privileged account login from a new device”</li>
+            <li>“Unusual query: <code>SELECT * FROM userdata WHERE…</code> (high-volume)”</li>
+        </ul>
+
+        <h4>L1 Actions:</h4>
+        <ul>
+            <li>Checks if it is a false positive</li>
+            <li>Confirms the activity is unusual</li>
+            <li>Escalates to L2 because it involves <strong>database access + sensitive data</strong></li>
+        </ul>
+
+        <p><em>L1 job = Identify “is this worth investigating?”</em></p>
+
+        <hr>
+
+        <h2>🔎 <strong>4. L2 SOC Analyst — Deep Investigation</strong></h2>
+        <p>L2 takes the case and checks:</p>
+        <h4>✔️ Login logs</h4>
+        <p>Who logged in? From where? Is the device trusted?</p>
+
+        <h4>✔️ Database logs</h4>
+        <p>What queries were made? Were they reading sensitive tables?</p>
+
+        <h4>✔️ System behavior</h4>
+        <p>Were there any unexpected processes?</p>
+
+        <h4>✔️ Network patterns</h4>
+        <p>Is the traffic coming from suspicious IPs?</p>
+
+        <p>If L2 sees something like:</p>
+        <ul>
+            <li>The query tries to read “owner_highschool_results” table</li>
+            <li>IP belongs to an unknown region</li>
+            <li>Time of access is unusual</li>
+            <li>Account never queried such data before</li>
+        </ul>
+
+        <blockquote>“This is likely a real ongoing attack.”</blockquote>
+        <p>L2 escalates to <strong>Incident Response</strong> and informs the SOC Manager.</p>
+
+        <hr>
+
+        <h2>🚑 <strong>5. Incident Response (IR) Team Steps In</strong></h2>
+        <p>The IR Team takes control to <strong>stop the attack safely</strong>.</p>
+
+        <h4>They do:</h4>
+        <ul>
+            <li>Isolate affected server from the network</li>
+            <li>Disable compromised account</li>
+            <li>Block suspicious IPs/domains</li>
+            <li>Reset credentials</li>
+            <li>Stop malicious sessions</li>
+            <li>Ensure attacker is no longer connected</li>
+        </ul>
+
+        <p><em>All defensive actions, 100% legal. Nothing offensive or harmful.</em></p>
+
+        <hr>
+
+        <h2>🕵️‍♀️ <strong>6. Threat Intelligence Analyst Joins</strong></h2>
+        <p>They check:</p>
+        <ul>
+            <li>IP addresses in threat intelligence databases</li>
+            <li>Domains against safe blacklists</li>
+            <li>Patterns compared with known cybercriminal behaviors</li>
+        </ul>
+
+        <p>They report:</p>
+        <ul>
+            <li>“IP used belongs to a known cybercrime botnet”</li>
+            <li><strong>or</strong></li>
+            <li>“No public record — could be targeted attack”</li>
+        </ul>
+
+        <p>This helps the team understand the attacker’s intention.</p>
+
+        <hr>
+
+        <h2>🧠 <strong>7. L3 SOC Analyst / Detection Engineer</strong></h2>
+        <p>They analyze:</p>
+        <ul>
+            <li>How did the attacker bypass initial defenses?</li>
+            <li>Was there a misconfiguration?</li>
+            <li>Do we need new SIEM rules?</li>
+        </ul>
+
+        <p>They create or update:</p>
+        <ul>
+            <li>Detection rules</li>
+            <li>Alerts</li>
+            <li>Firewall policies</li>
+            <li>Use cases</li>
+        </ul>
+
+        <p>This prevents the SAME attack from happening again.</p>
+
+        <hr>
+
+        <h2>♻️ <strong>8. Recovery Phase</strong></h2>
+        <p>Once safe, the IR Team:</p>
+        <ul>
+            <li>Cleans the affected server</li>
+            <li>Applies patches</li>
+            <li>Rebuilds from backups if needed</li>
+            <li>Re-enables service carefully</li>
+            <li>Confirms everything is healthy</li>
+        </ul>
+
+        <p>Database is restored safely.</p>
+
+        <hr>
+
+        <h2>📄 <strong>9. Reporting & Lessons Learned</strong></h2>
+        <p>The SOC Manager prepares a full report:</p>
+        <h4>Report includes:</h4>
+        <ul>
+            <li>Timeline</li>
+            <li>How attackers tried to access owner’s high-school data</li>
+            <li>What they did</li>
+            <li>How SOC responded</li>
+            <li>What was the impact</li>
+            <li>What improvements will be made</li>
+        </ul>
+
+        <p>This goes to upper management.</p>
+
+        <hr>
+
+        <h2>🔐 <strong>10. Post-Incident Hardening</strong></h2>
+        <p>SOC makes the company stronger:</p>
+        <ul>
+            <li>Multi-factor authentication enforced</li>
+            <li>Access control improved</li>
+            <li>Database access logging enhanced</li>
+            <li>Better network segmentation</li>
+            <li>New alerts added</li>
+            <li>Staff receives awareness training</li>
+        </ul>
+
+        <p>This ensures future attacks fail.</p>
+
+        <hr>
+
+        <h2>🌟 <strong>Simple Summary</strong></h2>
+        <table>
+            <tr><th>Stage</th><th>What Happens</th><th>Who Works</th></tr>
+            <tr><td>Detection</td><td>Alerts fire</td><td>L1 SOC</td></tr>
+            <tr><td>Investigation</td><td>Deep log + query analysis</td><td>L2 SOC</td></tr>
+            <tr><td>Containment</td><td>Block attacker, isolate systems</td><td>IR Team</td></tr>
+            <tr><td>Intelligence</td><td>Check attacker info</td><td>TI Team</td></tr>
+            <tr><td>Rule Updates</td><td>Improve detection rules</td><td>L3 SOC</td></tr>
+            <tr><td>Recovery</td><td>Restore systems</td><td>IR Team</td></tr>
+            <tr><td>Reporting</td><td>Documentation</td><td>SOC Manager</td></tr>
+        </table>
+
+        <hr>
+
+        <h2>About this Walkthrough</h2>
+        <p>A fictional, safe, educational cybersecurity scenario demonstrating how a Security Operations Center (SOC) responds to an attempted data-access attack. This write-up is suitable for learning SOC workflows, IR lifecycle, and defensive security methodologies.</p>
+
+        <div class="footer">© 2025 — Educational cybersecurity walkthrough by <strong>Aryan Giri</strong>.</div>
+    </div>
+</body>
+</html>
