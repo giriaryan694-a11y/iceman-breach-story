@@ -227,15 +227,6 @@ This ensures future attacks fail.
 
 ---
 
-# 💬 If you want, I can also simulate:
-
-* A **safe red-team perspective** of how such an attack is *simulated* ethically
-* How SOC + Red Team collaborate
-* A purple-team scenario
-* How YOU would analyze such an attack as a future red-teamer
-
-Tell me what you want next.
-
 # 🚨 Iceman's Icecreams — Incident Response Walkthrough
 
 A fictional, safe, educational cybersecurity scenario demonstrating how a Security Operations Center (SOC) responds to an attempted data-access attack.
@@ -407,7 +398,7 @@ This is a clean, purely defensive, educational example with no harmful actions.
 
 ---
 
-Feel free to use this as a template for learning, portfolio building, or teaching others about SOC and Incident Response fundamentals.
+
 
 ## Role-by-Role: How the SOC Acts (Table)
 
